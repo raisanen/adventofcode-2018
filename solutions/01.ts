@@ -1,4 +1,4 @@
-import { loadData } from '../utils';
+import { loadData } from './utils';
 
 const getData = (data: string): number[] => {
 	return data.split(/\n+/).map(n => parseInt(n));

@@ -1,4 +1,4 @@
-import { loadData, product } from '../utils';
+import { loadData, product } from './utils';
 import * as _ from 'lodash';
 
 const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
