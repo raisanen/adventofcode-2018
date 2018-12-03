@@ -1,7 +1,5 @@
-import { loadData, product } from './utils';
+import { loadData } from './utils';
 import * as _ from 'lodash';
-
-const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
 
 interface Point {
 	x: number;
@@ -28,7 +26,7 @@ const getData = (data: string): Square[] => {
 		return points;
 	}
 
-	return data.split(/\n+/).map(r => {
+	return data.splitLines().map(r => {
 		const matches = r.match(/#(\d+)\s+@\s+(\d+),(\d+):\s+(\d+)x(\d+)/);
 		const square = !matches ? <Square>{} : <Square>{
 			id: +matches[1],

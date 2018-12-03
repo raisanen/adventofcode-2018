@@ -1,10 +1,10 @@
-import { loadData, product } from './utils';
+import { loadData } from './utils';
 import * as _ from 'lodash';
 
-const letters = 'abcdefghijklmnopqrstuvwxyz'.split('');
+const letters = 'abcdefghijklmnopqrstuvwxyz'.splitChars();
 
 const getData = (data: string): string[] => {
-	return data.split(/\n+/);
+	return data.splitLines();
 }
 
 const hasTwiceOrThrice = (row: string[]): boolean[] => {
@@ -19,7 +19,10 @@ const numDifferent = (a: string[], b: string[]): number => {
 };
 
 const part1 = (data: string[][]): number => {
-	return product(data.map(hasTwiceOrThrice).reduce((p, c) => [p[0] + (c[0] ? 1 : 0), p[1] + (c[1] ? 1 : 0)], [0, 0]));
+	return data
+		.map(hasTwiceOrThrice)
+		.reduce((p, c) => [p[0] + (c[0] ? 1 : 0), p[1] + (c[1] ? 1 : 0)], [0, 0])
+		.product();
 };
 
 const part2 = (data: string[][]): string => {
@@ -37,7 +40,7 @@ const part2 = (data: string[][]): string => {
 };
 
 const solve = (data: string) => {
-	let rows = getData(data).map(r => r.split(''));
+	let rows = getData(data).map(r => r.splitChars());
 	console.log('Part1: ', part1(rows));
 	console.log('Part2: ', part2(rows));
 }

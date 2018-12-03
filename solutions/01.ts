@@ -1,11 +1,11 @@
 import { loadData } from './utils';
 
 const getData = (data: string): number[] => {
-	return data.split(/\n+/).map(n => parseInt(n));
+	return data.splitLines().toNumbers();
 }
 
 const part1 = (data: number[]): number => {
-	return data.reduce((p, c) => p + c, 0);
+	return data.sum();
 };
 
 const part2 = (data: number[]): number => {
@@ -22,10 +22,8 @@ const part2 = (data: number[]): number => {
 	}
 };
 
-const solve = (data: string) => {
+loadData(1, (data: string) => {
 	let numbers = getData(data);
 	console.log('Part1: ', part1(numbers));
 	console.log('Part2: ', part2(numbers));
-}
-
-loadData(1, solve);
+});
