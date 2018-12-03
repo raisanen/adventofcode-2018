@@ -1,4 +1,4 @@
-import { loadData } from './utils';
+import { loadData } from './include/utils';
 
 const getData = (data: string): number[] => {
 	return data.splitLines().toNumbers();

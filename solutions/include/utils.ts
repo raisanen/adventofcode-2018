@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import '../extensions';
+import './extensions';
 
 export function flatten<T>(list: T[][]): T[] {
 	return list.reduce((all, current) => all.concat(current));

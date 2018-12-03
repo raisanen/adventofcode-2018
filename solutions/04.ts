@@ -1,4 +1,4 @@
-import { loadData } from './utils';
+import { loadData } from './include/utils';
 import * as _ from 'lodash';
 
 const getData = (data: string) => data;
