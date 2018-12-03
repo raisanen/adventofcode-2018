@@ -1,0 +1,28 @@
+{
+	"name": "adventofcode-2018",
+	"version": "1.0.0",
+	"description": "Advent of Code Solutions",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/raisanen/adventofcode-2018.git"
+	},
+	"keywords": [
+		"adventofcode"
+	],
+	"author": "Kalle Räisänen <revkalle@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/raisanen/adventofcode-2018/issues"
+	},
+	"homepage": "https://github.com/raisanen/adventofcode-2018#readme",
+	"dependencies": {
+		"@types/lodash": "^4.14.118",
+		"@types/node": "^8.0.54",
+		"lodash": "^4.17.11",
+		"ts-node": "^3.3.0"
+	}
+}
