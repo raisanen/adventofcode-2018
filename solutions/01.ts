@@ -28,4 +28,4 @@ const solve = (data: string) => {
 	console.log('Part2: ', part2(numbers));
 }
 
-loadData(2, solve);
+loadData(1, solve);
