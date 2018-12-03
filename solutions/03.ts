@@ -11,29 +11,31 @@ interface Square {
 	id: number;
 	position: Point;
 	size: Point;
+	uniqPoints: string[];
 }
 
 const uniqId = (x: number, y: number) => `${x}x${y}`;
 
-const uniqPoints = (s: Square): string[] => {
-	const points: string[] = [];
-	for (let i = s.position.x; i < s.position.x + s.size.x; i++) {
-		for (let j = s.position.y; j < s.position.y + s.size.y; j++) {
-			points.push(uniqId(i, j));
-		}
-	}
-	return points;
-}
-
 // #id @ X,Y: XxY
 const getData = (data: string): Square[] => {
+	const uniqPoints = (s: Square): string[] => {
+		const points: string[] = [];
+		for (let i = s.position.x; i < s.position.x + s.size.x; i++) {
+			for (let j = s.position.y; j < s.position.y + s.size.y; j++) {
+				points.push(uniqId(i, j));
+			}
+		}
+		return points;
+	}
+
 	return data.split(/\n+/).map(r => {
 		const matches = r.match(/#(\d+)\s+@\s+(\d+),(\d+):\s+(\d+)x(\d+)/);
-		return !matches ? <Square>{} : <Square>{
+		const square = !matches ? <Square>{} : <Square>{
 			id: +matches[1],
 			position: { x: +matches[2], y: +matches[3] },
 			size: { x: +matches[4], y: +matches[5] },
 		};
+		return {...square, uniqPoints: uniqPoints(square)};
 	});
 };
 
@@ -42,7 +44,7 @@ const getAllOverlapping = (data: Square[]): string[] => {
 	const uniqOverlapping: {[id: string]: boolean} = {};
 
 	data.forEach((d: Square) => {
-		const points = uniqPoints(d);
+		const points = d.uniqPoints;
 		points.forEach(p => {
 			if (foundPoints[p]) {
 				uniqOverlapping[p] = true;
@@ -61,7 +63,7 @@ const part1 = (data: Square[]): number => {
 const part2 = (data: Square[]): number => {
 	const overlapping = getAllOverlapping(data);
 	const nonOverlapping = data.find(d => {
-		const points = uniqPoints(d);
+		const points = d.uniqPoints;
 		return _.intersection(points, overlapping).length === 0;
 	});
 
