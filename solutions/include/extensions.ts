@@ -1,14 +1,9 @@
-
+//#region Array
 interface Array<T> {
 	sum(): number;
 	product(): number;
 	toNumbers(): number[];
-	filterFalsy(): any[];
-}
-
-interface String {
-	splitLines(): string[];
-	splitChars(): string[];
+	removeFalsy(): any[];
 }
 
 Array.prototype.sum = function() {
@@ -23,9 +18,16 @@ Array.prototype.toNumbers = function() {
 	return this.map(Number);
 };
 
-Array.prototype.filterFalsy = function() {
+Array.prototype.removeFalsy = function() {
 	return this.filter(i => !!i);
 };
+//#endregion
+
+//#region String
+interface String {
+	splitLines(): string[];
+	splitChars(): string[];
+}
 
 String.prototype.splitLines = function() {
 	return this.split(/\n+/);
@@ -34,3 +36,4 @@ String.prototype.splitLines = function() {
 String.prototype.splitChars = function() {
 	return this.split('');
 };
+//#endregion
