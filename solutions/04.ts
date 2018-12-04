@@ -9,7 +9,7 @@ interface Guard {
 
 let guards: Guard[] = [];
 
-const getData = (data: string) => {
+const getData = (data: string): void => {
 	let currentGuard: Guard = null;
 	let fellAsleepAt: number = -1;
 	let hasWoken = false;
@@ -49,7 +49,7 @@ const getData = (data: string) => {
 	guards = _.sortBy(guards, g => -g.totalSleepMinutes);
 };
 
-const part1 = () => {
+const part1 = (): number => {
 	const mostSleepGuard = guards[0];
 	let maxMinute = [0, 0];
 	for (let i = 0; i < 60; i++) {
@@ -59,7 +59,7 @@ const part1 = () => {
 	}
 	return mostSleepGuard.id * maxMinute[0];
 };
-const part2 = () => {
+const part2 = (): number => {
 	let maxGuardMinute = [0, 0, 0];
 	for (let g = 0; g < guards.length; g++) {
 		for (let i = 0; i < 60; i++) {
@@ -72,7 +72,7 @@ const part2 = () => {
 	return maxGuardMinute[0] * maxGuardMinute[1];
 };
 
-const solve = (data: string) => {
+const solve = (data: string): void => {
 	getData(data);
 	console.log('Part1: ', part1());
 	console.log('Part2: ', part2());
