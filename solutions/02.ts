@@ -1,7 +1,5 @@
-import { loadData } from './include/utils';
+import { loadData, alphabetArray } from './include/utils';
 import * as _ from 'lodash';
-
-const letters = 'abcdefghijklmnopqrstuvwxyz'.splitChars();
 
 const getData = (data: string): string[] => {
 	return data.splitLines();
@@ -9,8 +7,8 @@ const getData = (data: string): string[] => {
 
 const hasTwiceOrThrice = (row: string[]): boolean[] => {
 	return [
-		_.some(letters, (l) => row.filter((c) => c === l).length === 2 && row.filter((c) => c === l).length !== 3),
-		_.some(letters, (l) => row.filter((c) => c === l).length === 3),
+		_.some(alphabetArray, (l) => row.filter((c) => c === l).length === 2 && row.filter((c) => c === l).length !== 3),
+		_.some(alphabetArray, (l) => row.filter((c) => c === l).length === 3),
 	];
 };
 
