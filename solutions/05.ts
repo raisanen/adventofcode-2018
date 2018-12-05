@@ -1,13 +1,11 @@
-import { alphabetArray, loadData } from './include/utils';
+import { alphabetArray, loadData, alphabet } from './include/utils';
 import * as _ from 'lodash';
 
 const day = 5;
 
 const transformationRex: RegExp = ((): RegExp => {
 	return new RegExp(
-		alphabetArray
-			.map(c => c.toLowerCase() + c.toUpperCase() + '|' + c.toUpperCase() + c.toLowerCase())
-			.join('|'),
+		alphabet.mapChars(c => c.toLowerCase() + c.toUpperCase() + '|' + c.toUpperCase() + c.toLowerCase(), '|'),
 		'g'
 	);
 })();
