@@ -27,6 +27,7 @@ Array.prototype.removeFalsy = function() {
 interface String {
 	splitLines(): string[];
 	splitChars(): string[];
+	rejoin(joinChar?: string, splitChar?: string): string;
 	map(callback: (value: string, index?: number, array?: string[]) => any, splitChar?: string, joinChar?: string): string;
 	mapChars(callback: (value: string, index?: number, array?: string[]) => any, joinChar?: string): string;
 	mapLines(callback: (value: string, index?: number, array?: string[]) => any, joinChar?: string): string;
@@ -39,6 +40,10 @@ String.prototype.splitLines = function() {
 String.prototype.splitChars = function() {
 	return this.split('');
 };
+
+String.prototype.rejoin = function (joinChar=null, splitChar=null) {
+	return this.split(splitChar || '').join(joinChar || '');
+}
 
 String.prototype.map = function(
 	callback: (value: string, index: number, array: string[]) => any,
