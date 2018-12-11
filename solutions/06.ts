@@ -1,5 +1,4 @@
-import { loadData, range, aconsole } from './include/utils';
-import * as _ from 'lodash';
+import { loadData, range } from './include/utils';
 
 interface Point {
 	id?: string;
@@ -24,7 +23,7 @@ const manhattan = (a: Point, b: Point) => Math.abs(a.x - b.x) + Math.abs(a.y - b
 const nearestSite = (points: Point[], p: Point): Point => {
 	let ret: Point = null;
 	let distance = 0, numAtDistance = 0;
-	for (let k = 0; k < points.length; k++) {
+	range(0, points.length - 1).forEach(k => {
 		const d = manhattan(points[k], p);
 		if (k === 0 || d <= distance) {
 			if (d === distance) {
@@ -35,13 +34,11 @@ const nearestSite = (points: Point[], p: Point): Point => {
 			distance = d;
 			ret = points[k];
 		}
-	}
+	});
 	return numAtDistance > 0 ? null : ret;
 };
 
-const totalDistance = (points: Point[], p: Point): number => {
-	return points.map(c => manhattan(p, c)).sum();
-};
+const totalDistance = (points: Point[], p: Point) => points.sumBy(c => manhattan(p, c));
 
 const part1 = (points: Point[]) => {
 	const xs = points.mapTo('x'),
@@ -55,9 +52,7 @@ const part1 = (points: Point[]) => {
 	range(minY, maxY).forEach(y => {
 		range(minX, maxX).forEach(x => {
 			const closest = nearestSite(points, { x: x, y: y });
-			let isSite = false;
 			if (closest) {
-				isSite = x === closest.x && y === closest.y;
 				closest.numClose++;
 				if (y === minY || y === maxY || x === minX || x === maxX) {
 					closest.infinite = true;

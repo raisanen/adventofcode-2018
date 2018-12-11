@@ -1,6 +1,7 @@
 //#region Array
 interface Array<T> {
 	sum(): number;
+	sumBy(predicate: (e: any) => number): number;
 	product(): number;
 	toNumbers(): number[];
 	removeFalsy(): any[];
@@ -13,6 +14,10 @@ interface Array<T> {
 
 Array.prototype.sum = function() {
 	return this.reduce((p, c) => p + c, 0);
+};
+
+Array.prototype.sumBy = function(predicate: (e: any) => number): number {
+	return this.map(predicate).sum();
 };
 
 Array.prototype.product = function() {
