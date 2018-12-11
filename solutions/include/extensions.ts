@@ -1,5 +1,9 @@
 //#region Array
 interface Array<T> {
+	skip(n: number): any[];
+	take(n: number): any[];
+	first(): any;
+	last(): any;
 	sum(): number;
 	sumBy(predicate: (e: any) => number): number;
 	product(): number;
@@ -12,7 +16,23 @@ interface Array<T> {
 	mapTo(key: string): any[];
 }
 
-Array.prototype.sum = function() {
+Array.prototype.skip = function (n: number): any[] {
+	return this.length > n ? this.slice(n) : []; 
+};
+
+Array.prototype.take = function (n: number): any[] {
+	return this.length > n ? this.slice(0, n) : [];
+};
+
+Array.prototype.first = function(): any {
+	return this.length > 0 ? this[0] : null;
+};
+
+Array.prototype.last = function(): any {
+	return this.length > 0 ? this.slice(-1)[0] : null;
+}
+
+Array.prototype.sum = function(): number {
 	return this.reduce((p, c) => p + c, 0);
 };
 
