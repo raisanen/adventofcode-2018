@@ -44,13 +44,13 @@ const totalDistance = (points: Point[], p: Point): number => {
 };
 
 const part1 = (points: Point[]) => {
-	const xs = points.map(p => p.x),
-		ys = points.map(p => p.y),
+	const xs = points.mapTo('x'),
+		ys = points.mapTo('y'),
 		fudge = 1,
-		minX = _.min(xs) - fudge,
-		minY = _.min(ys) - fudge,
-		maxX = _.max(xs) + fudge,
-		maxY = _.max(ys) + fudge;
+		minX = xs.min() - fudge,
+		minY = ys.min() - fudge,
+		maxX = xs.max() + fudge,
+		maxY = ys.max() + fudge;
 
 	range(minY, maxY).forEach(y => {
 		range(minX, maxX).forEach(x => {
@@ -69,8 +69,8 @@ const part1 = (points: Point[]) => {
 	return points.filter(p => !p.infinite).maxBy(p => p.numClose);
 };
 const part2 = (points: Point[], limit = 32) => {
-	const xs = points.map(p => p.x),
-		ys = points.map(p => p.y);
+	const xs = points.mapTo('x'),
+		ys = points.mapTo('y');
 
 	return range(ys.min(), ys.max()).map(y => {
 		return range(xs.min(), xs.max()).map(x => {

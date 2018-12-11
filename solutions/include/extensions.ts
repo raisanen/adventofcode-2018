@@ -8,6 +8,7 @@ interface Array<T> {
 	max(): number;
 	minBy(predicate: (e: any) => number): number;
 	maxBy(predicate: (e: any) => number): number;
+	mapTo(key: string): any[];
 }
 
 Array.prototype.sum = function() {
@@ -53,6 +54,10 @@ Array.prototype.minBy = function (predicate: (e: any) => number): number {
 Array.prototype.maxBy = function (predicate: (e: any) => number): number {
 	return this.map(predicate).max();
 };
+
+Array.prototype.mapTo = function (key: string): any[] {
+	return this.map(e => e[key]);
+}
 //#endregion
 
 //#region String
