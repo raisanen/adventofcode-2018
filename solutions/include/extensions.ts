@@ -4,6 +4,10 @@ interface Array<T> {
 	product(): number;
 	toNumbers(): number[];
 	removeFalsy(): any[];
+	min(): number;
+	max(): number;
+	minBy(predicate: (e: any) => number): number;
+	maxBy(predicate: (e: any) => number): number;
 }
 
 Array.prototype.sum = function() {
@@ -20,6 +24,34 @@ Array.prototype.toNumbers = function() {
 
 Array.prototype.removeFalsy = function() {
 	return this.filter(i => !!i);
+};
+
+Array.prototype.min = function (): number {
+	let min = Number.MAX_SAFE_INTEGER;
+	for (let i = 0; i < this.length; i++) {
+		if (this[i] < min) {
+			min = this[i];
+		}
+	}
+	return min;
+};
+
+Array.prototype.max = function (): number {
+	let max = Number.MIN_SAFE_INTEGER;
+	for (let i = 0; i < this.length; i++) {
+		if (this[i] > max) {
+			max = this[i];
+		}
+	}
+	return max;
+};
+
+Array.prototype.minBy = function (predicate: (e: any) => number): number {
+	return this.map(predicate).min();
+};
+
+Array.prototype.maxBy = function (predicate: (e: any) => number): number {
+	return this.map(predicate).max();
 };
 //#endregion
 
