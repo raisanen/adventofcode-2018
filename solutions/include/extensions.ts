@@ -33,23 +33,11 @@ Array.prototype.removeFalsy = function() {
 };
 
 Array.prototype.min = function (): number {
-	let min = Number.MAX_SAFE_INTEGER;
-	for (let i = 0; i < this.length; i++) {
-		if (this[i] < min) {
-			min = this[i];
-		}
-	}
-	return min;
+	return this.reduce((p, c) => c < p ? c : p, Number.MAX_SAFE_INTEGER);
 };
 
 Array.prototype.max = function (): number {
-	let max = Number.MIN_SAFE_INTEGER;
-	for (let i = 0; i < this.length; i++) {
-		if (this[i] > max) {
-			max = this[i];
-		}
-	}
-	return max;
+	return this.reduce((p, c) => c > p ? c : p, Number.MIN_SAFE_INTEGER);
 };
 
 Array.prototype.minBy = function (predicate: (e: any) => number): number {
