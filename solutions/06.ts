@@ -70,21 +70,13 @@ const part1 = (points: Point[]) => {
 };
 const part2 = (points: Point[], limit = 32) => {
 	const xs = points.map(p => p.x),
-		ys = points.map(p => p.y),
-		minX = _.min(xs),
-		minY = _.min(ys),
-		maxX = _.max(xs),
-		maxY = _.max(ys);
-	let inArea = 0;
+		ys = points.map(p => p.y);
 
-	range(minY, maxY).forEach(y => {
-		range(minX, maxX).forEach(x => {
-			if (totalDistance(points, {x: x, y: y}) < limit) {
-				inArea++;
-			}
-		});
-	});
-	return inArea;
+	return range(ys.min(), ys.max()).map(y => {
+		return range(xs.min(), xs.max()).map(x => {
+			return (totalDistance(points, {x: x, y: y}) < limit) ? 1 : 0;
+		}).sum();
+	}).sum();
 };
 
 
