@@ -52,8 +52,8 @@ const part1 = (points: Point[]) => {
 		maxX = _.max(xs) + fudge,
 		maxY = _.max(ys) + fudge;
 
-	const plot = range(minY, maxY).map(y => {
-		return range(minX, maxX).map(x => {
+	range(minY, maxY).forEach(y => {
+		range(minX, maxX).forEach(x => {
 			const closest = nearestSite(points, { x: x, y: y });
 			let isSite = false;
 			if (closest) {
@@ -63,23 +63,18 @@ const part1 = (points: Point[]) => {
 					closest.infinite = true;
 				}
 			}
-			return closest ? (isSite ? closest.id : closest.id.toLowerCase()) : '.';
-		}).join('')
-	}).join('\n');
-	aconsole
-		.log(points)
-		.log('\n')
-		.log(plot);
+		});
+	});
+
 	return points.filter(p => !p.infinite).maxBy(p => p.numClose);
 };
 const part2 = (points: Point[], limit = 32) => {
 	const xs = points.map(p => p.x),
 		ys = points.map(p => p.y),
-		fudge = 0,
-		minX = _.min(xs) - fudge,
-		minY = _.min(ys) - fudge,
-		maxX = _.max(xs) + fudge,
-		maxY = _.max(ys) + fudge;
+		minX = _.min(xs),
+		minY = _.min(ys),
+		maxX = _.max(xs),
+		maxY = _.max(ys);
 	let inArea = 0;
 
 	range(minY, maxY).forEach(y => {
@@ -96,6 +91,6 @@ const part2 = (points: Point[], limit = 32) => {
 // Scaffolding:
 loadData(day, (data: string) => {
 	let points = getData(data);
-	//console.log('Part1:\n', part1(points));
+	console.log('Part1: ', part1(points));
 	console.log('Part2: ', part2(points, 10000));
 });
