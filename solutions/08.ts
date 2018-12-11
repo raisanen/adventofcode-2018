@@ -8,32 +8,42 @@ class Node {
 
 const day = 8;
 
-const parseNode = (nums: number[]): Node => {
-	const data = [...nums],
-		numChildren = data.shift(),
-		numMeta = data.shift(),
-		meta = data.slice(-numMeta),
-		children: Node[] = [];
-	
-	data.splice(-numMeta);
+const getNode = (d: number[]): Node[] => {
+	const numChildren = d.shift(),
+		numMeta = d.shift(),
+		children: Node[] = [],
+		meta: number[] = [];
 
-	return <Node>{
-		children: [],
-		meta: meta
-	};
-}
-
-const getData = (data: string) => {
-	return parseNode(data.split(/\s+/).toNumbers());
+	for (let i = 0; i < numChildren; i++) {
+		children.push(...getNode(d));
+	}
+	for (let i = 0; i < numMeta; i++) {
+		meta.push(d.shift());
+	}
+	return [<Node>{children: children, meta: meta}];
 };
 
-const part1 = (data: any) => data;
+
+const getData = (data: string) => {
+	return getNode(data.split(/\s+/).toNumbers())[0];
+};
+
+const part1 = (root: Node) => {
+	let checksum = 0;
+	const printNode = (n: Node, level = '') => {
+		checksum += n.meta.sum();
+		console.log(level, n.meta);
+		n.children.forEach(c => printNode(c, level + '\t'));
+	};
+	printNode(root);
+	return checksum;
+};
 const part2 = (data: any) => data;
 
 
 // Scaffolding:
 loadData(day, (data: string) => {
-	const root = getData(`2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2`);
+	const root = getData(data);
 	console.log('Part1: ', part1(root));
 //	console.log('Part2: ', part2(rows));
 });
