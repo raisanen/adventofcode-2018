@@ -23,7 +23,7 @@ export const loadData = (day: number, callback: Function): void => {
 
 class AConsole {
 	log(message?: any, ...params: any[]): AConsole {
-		console.log(message, params);
+		console.log(message);
 		return this;
 	}
 	clear(): AConsole {
