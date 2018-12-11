@@ -29,21 +29,28 @@ const getData = (data: string) => {
 };
 
 const part1 = (root: Node) => {
-	let checksum = 0;
-	const printNode = (n: Node, level = '') => {
-		checksum += n.meta.sum();
-		console.log(level, n.meta);
-		n.children.forEach(c => printNode(c, level + '\t'));
+	const calcNode = (n: Node): number => {
+		return n.meta.sum() + n.children.sumBy(c => calcNode(c));
 	};
-	printNode(root);
-	return checksum;
+	return calcNode(root);
 };
-const part2 = (data: any) => data;
+const part2 = (root: Node) => {
+	const calcNode = (n: Node): number => {
+		if (n.children.length > 0) {
+			return n.meta
+				.filter(m => m <= n.children.length)
+				.map(m => calcNode(n.children[m - 1]))
+				.sum();
+		}
+		return n.meta.sum();
+	};
+	return calcNode(root);
+};
 
 
 // Scaffolding:
 loadData(day, (data: string) => {
 	const root = getData(data);
 	console.log('Part1: ', part1(root));
-//	console.log('Part2: ', part2(rows));
+	console.log('Part2: ', part2(root));
 });
