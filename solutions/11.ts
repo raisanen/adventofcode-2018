@@ -1,51 +1,68 @@
 import { range } from './include/utils';
 import { flatten } from 'lodash';
 
-const day = 11;
-const SERIAL_NUMBER: number = 42;
+const sums = range(0, 300).map(() => range(0,300).map(() => 0));
 
-const powerLevel = (x: number, y: number): number => {
+const powerLevel = (x: number, y: number, serial: number): number => {
 	const rackId = x + 10;
-	let power = (
-		((rackId * y) + SERIAL_NUMBER) * rackId
-	).toString();
-	
-	return (
-		power.length < 3 
-			? 0 
-			: parseInt(power.charAt(power.length - 2))
-	) - 5;
+	return Math.floor((((rackId * y) + serial) * rackId) / 100) % 10 - 5;
 };
 
-const score = (startX: number, startY: number): number => {
-	return range(startY, startY + 3)
-		.map(y => range(startX, startX + 3)
-			.map(x => powerLevel(x, y)).sum()
-	).sum()
+const calcSums = (serial: number): void => {
+	range(1, 300)
+		.forEach(y => range(1, 300)
+			.forEach(x => {
+				sums[x][y] = powerLevel(x, y, serial) + sums[x][y-1] + sums[x-1][y] - sums[x-1][y-1];
+			})
+		);
+};
+
+const score = (x: number, y: number, side: number): number => {
+	const x1 = x + side - 1,
+		y1 = y + side - 1;
+	return sums[x1][y1] - sums[x][y1] - sums[x1][y] + sums[x][y];
 };
 
 const part1 = () => {
 	let maxScore = 0,
-		maxCoords: {x: number, y: number} = null;
+		maxCoords: { x: number, y: number } = null;
 
 	range(1, 298).forEach(y => {
 		range(1, 298).forEach(x => {
-			const thisScore = score(x, y);
+			const thisScore = score(x, y, 3);
 			if (thisScore > maxScore) {
 				maxScore = thisScore;
-				maxCoords = {x: x, y: y};
+				maxCoords = { x: x, y: y };
 			}
-			thisScore;
 		});
 	});
 	return [maxCoords, maxScore];
 };
-const part2 = () => {};
+
+const part2 = () => {
+	let maxScore = 0,
+		maxCoords: { x: number, y: number, size: number } = null;
+
+	range(1, 300).forEach(y => {
+		range(1, 300).forEach(x => {
+			range(1, 300 - Math.max(x, y)).forEach(s => {
+				const thisScore = score(x, y, s);
+				if (thisScore > maxScore) {
+					maxScore = thisScore;
+					maxCoords = { x: x, y: y, size: s };
+				}
+			});
+		});
+	});
+	return [maxCoords, maxScore];
+};
 
 // Scaffolding:
 const solve = () => {
+	calcSums(6878);
+	// 6878
 	console.log('Part1: ', part1());
-	console.log('Part2:', powerLevel(21,61))
+	console.log('Part1: ', part2());
 };
 
 solve();
