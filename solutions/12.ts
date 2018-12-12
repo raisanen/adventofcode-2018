@@ -1,32 +1,60 @@
 import { loadData } from './include/utils';
 import * as _ from 'lodash';
-import { InfiniteTape } from './include/infinite-tape';
 
 const day = 12;
 
-const tape: InfiniteTape<string> = new InfiniteTape<string>(null, '.');
-const rules: {[start: string]: string} = {};
+let flowers: string[] = [],
+	startLength = 0;
+const rules: {[start: string]: string} = {},
+	pad = '....'.splitChars();
 
 const getData = (data: string) => {
 	data.splitLines().forEach(l => {
 		if (l.startsWith('initial state:')) {
-			const chars  = l.replace('initial state: ', '').splitChars().filter(c => c === '.' || c === '#');
-			tape.append(...chars);
+			flowers.push(...(l.replace(/[^#.]/g, '').splitChars()));
+			startLength = flowers.length;
 		} else if (l.includes('=>')) {
-			const [from, to] = l.split(' => ');
+			const [from, to] = l.split(' => ').map(s => s.replace(/\s+/g, ''));
 			rules[from] = to;
 		}
 	});
-	tape.prepend('.', '.', '.').center();
 };
 
-const part1 = (data: any) => data;
-const part2 = (data: any) => data;
+const currScore = () => {
+	const diff = (flowers.length - startLength) / 2;
+	return flowers.map((f, i) => f === '#' ? i - diff : 0).sum();
+}
 
+const solve = () => {
+	let lastScore = 0,
+		diffs: number[] = [],
+		completedGenerations = 0;
+
+	for (let i = 0; i < 500; i++) {
+		const score = currScore();
+		
+		diffs.push(score - lastScore);
+
+		if (i === 20) {
+			console.log('Part 1: ', score);
+		}
+
+		flowers = [...pad, ...flowers, ...pad];
+		const next: string[] = [];
+		for (let j = 2; j < flowers.length - 2; j++) {
+			next.push(rules[flowers.slice(j-2, j+3).join('')]);
+		}
+		flowers = next;
+		lastScore = score;
+		completedGenerations++;
+	}
+	const avgDiff = diffs.slice(-100).sum() / 100;
+
+	console.log('Part 2: ', currScore() + ((50000000000 - completedGenerations) * avgDiff));
+};
 
 // Scaffolding:
 loadData(day, (data: string) => {
-	let rows = getData(data);
-	console.log('Part1: ', part1(rows));
-	console.log('Part2: ', part2(rows));
+	getData(data);
+	solve();
 });

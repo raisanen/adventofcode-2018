@@ -1,3 +1,6 @@
+type ComparePredicate = (a: any, b: any) => boolean;
+type NumAction = (obj: any) => number;
+
 //#region Array
 interface Array<T> {
 	skip(n: number): any[];
@@ -5,15 +8,16 @@ interface Array<T> {
 	first(): any;
 	last(): any;
 	sum(): number;
-	sumBy(predicate: (e: any) => number): number;
+	sumBy(predicate: NumAction): number;
 	product(): number;
 	toNumbers(): number[];
 	removeFalsy(): any[];
 	min(): number;
 	max(): number;
-	minBy(predicate: (e: any) => number): number;
-	maxBy(predicate: (e: any) => number): number;
+	minBy(predicate: NumAction): number;
+	maxBy(predicate: NumAction): number;
 	mapTo(key: string): any[];
+	allSame(other: any[], cmp?: ComparePredicate): boolean;
 }
 
 Array.prototype.skip = function (n: number): any[] {
@@ -36,7 +40,7 @@ Array.prototype.sum = function(): number {
 	return this.reduce((p, c) => p + c, 0);
 };
 
-Array.prototype.sumBy = function(predicate: (e: any) => number): number {
+Array.prototype.sumBy = function(predicate: NumAction): number {
 	return this.map(predicate).sum();
 };
 
@@ -53,23 +57,29 @@ Array.prototype.removeFalsy = function() {
 };
 
 Array.prototype.min = function (): number {
-	return this.reduce((p, c) => c < p ? c : p, Number.MAX_SAFE_INTEGER);
+	return this.reduce((p, c) =>
+	 c < p ? c : p, Number.MAX_SAFE_INTEGER);
 };
 
 Array.prototype.max = function (): number {
 	return this.reduce((p, c) => c > p ? c : p, Number.MIN_SAFE_INTEGER);
 };
 
-Array.prototype.minBy = function (predicate: (e: any) => number): number {
+Array.prototype.minBy = function (predicate: NumAction): number {
 	return this.map(predicate).min();
 };
 
-Array.prototype.maxBy = function (predicate: (e: any) => number): number {
+Array.prototype.maxBy = function (predicate: NumAction): number {
 	return this.map(predicate).max();
 };
 
 Array.prototype.mapTo = function (key: string): any[] {
 	return this.map(e => e[key]);
+}
+
+Array.prototype.allSame = function (other: any[], cmp?: ComparePredicate): boolean {
+	const cmpCallback = cmp ? cmp : (a: any, b: any) => a === b;
+	return this.length === other.length && this.every((v, i) => cmpCallback(v, other[i]));
 }
 //#endregion
 
