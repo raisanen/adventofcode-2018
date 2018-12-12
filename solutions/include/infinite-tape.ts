@@ -16,9 +16,11 @@ class TapeCell<T> {
 
 export class InfiniteTape<T> {
 	private defaultValue: T = null;
+
 	private centerCell: TapeCell<T>;
 	private currentCell: TapeCell<T>;
-	private currentIndex: 0;
+
+	private currentIndex = 0;
 
 	private minIndex = 0;
 	private maxIndex = 0;
@@ -48,33 +50,35 @@ export class InfiniteTape<T> {
 		return null;
 	}
 
-	private moveLeft(grow: boolean = true): TapeCell<T> {
-		if (this.currentCell.prev === null) {
+	private move(direction: 1|-1 = 1, grow: boolean = true): TapeCell<T> {
+		const prop: 'next'|'prev' = direction === 1 ? 'next' : 'prev';
+		if (this.currentCell[prop] === null) {
 			if (!grow) {
 				return null;
 			}
-			this.currentCell.prev = new TapeCell<T>(this.defaultValue, null, this.currentCell);
+			this.currentCell[prop] = direction === 1 
+				? new TapeCell<T>(this.defaultValue, this.currentCell)
+				: new TapeCell<T>(this.defaultValue, null, this.currentCell);
 		}
-		this.currentCell = this.currentCell.prev;
-		this.currentIndex--;
+		this.currentCell = this.currentCell[prop];
+		this.currentIndex += direction;
 		if (this.currentIndex < this.minIndex) {
 			this.minIndex = this.currentIndex;
 		}
-		return this.currentCell;
-	}
-	private moveRight(grow: boolean = true): TapeCell<T> {
-		if (this.currentCell.next === null) {
-			if (!grow) {
-				return null;
-			}
-			this.currentCell.next = new TapeCell<T>(this.defaultValue, this.currentCell);
-		}
-		this.currentCell = this.currentCell.next;
-		this.currentIndex++;
 		if (this.currentIndex > this.maxIndex) {
 			this.maxIndex = this.currentIndex;
 		}
+		if (this.currentIndex === 0) {
+			this.centerCell = this.currentCell;
+		}
 		return this.currentCell;
+	}
+
+	private moveLeft(grow: boolean = true): TapeCell<T> {
+		return this.move(-1, grow);
+	}
+	private moveRight(grow: boolean = true): TapeCell<T> {
+		return this.move(1, grow);
 	}
 
 	private getCellAt(index: number): TapeCell<T> {
@@ -82,9 +86,8 @@ export class InfiniteTape<T> {
 			this.currentCell = this.centerCell;
 			this.currentIndex = 0;
 		}
-		const move = index < this.currentIndex ? this.moveLeft : this.moveRight;
 		while (this.currentIndex !== index) {
-			move();
+			this.move(index < this.currentIndex ? -1: 1);
 		}
 		return this.currentCell;
 	}
@@ -100,23 +103,17 @@ export class InfiniteTape<T> {
 
 	zip(fromIndex: number, toIndex: number): InfiniteTape<T> {
 		this.moveTo(fromIndex);
+
 		const currentId = this.currentCell.id;
 		let endItem: TapeCell<T> = this.currentCell;
 
-		for (let i = fromIndex; i < toIndex; i++) {
+		for (let i = fromIndex; i < toIndex && endItem !== null; i++) {
 			endItem = endItem.next;
-			if (endItem === null) {
-				break;
-			}
 		}
 
 		this.currentCell.next = endItem;
-		this.minIndex = 0;
-		this.maxIndex = 0;
-		this.end();
-		this.start();
-
-		this.findCell(currentId);
+		this.currentIndex = this.minIndex = this.maxIndex = 0;
+		this.end().findCell(currentId);
 
 		return this;
 	}
@@ -149,22 +146,26 @@ export class InfiniteTape<T> {
 	}
 
 	next(): T {
-		return this.currentIndex < this.maxIndex ? this.moveRight().value : null;
+		return this.moveRight(false)!.value;
 	}
 	prev(): T {
-		return this.currentIndex > this.minIndex ? this.moveLeft().value : null;
+		return this.moveLeft(false)!.value;
 	}
 
-	itemAt(index: number, newValue?: T): T {
-		return newValue === null ? this.getCellAt(index).value : (this.getCellAt(index).value = newValue);
+	setValue(index: number, newValue: T = null): InfiniteTape<T> {
+		this.getCellAt(index).value = newValue;
+		return this;
+	}
+	getValue(index: number): T {
+		return this.getCellAt(index).value;
 	}
 
 	append(...newValue: T[]): InfiniteTape<T> {
-		newValue.forEach(v => this.itemAt(this.minIndex - 1, v));
+		newValue.forEach(v => this.setValue(this.minIndex - 1, v));
 		return this;
 	}
 	prepend(...newValue: T[]): InfiniteTape<T> {
-		newValue.forEach(v => this.itemAt(this.maxIndex + 1, v));
+		newValue.forEach(v => this.setValue(this.maxIndex + 1, v));
 		return this;
 	}
 
@@ -175,22 +176,34 @@ export class InfiniteTape<T> {
 				endAt = to === null ? this.maxIndex : to;
 
 			for (let i = startAt; i <= endAt; i++) {
-				output.push(this.itemAt(i));
+				output.push(this.getValue(i));
 			}
 
 			return output;
 		});
 	}
-	insert(at: number, ...newValues: T[]): InfiniteTape<T> {
-		const tmpLeft: T[] = this.slice(this.startIndex, at - 1),
-			tmpRight: T[] = this.slice(at, this.endIndex);
-		this.replace(this.startIndex, ...[...tmpLeft, ...newValues, ...tmpRight]);
-		return this;
+	splice(at: number, deleteCount: number, ...newValues: T[]): T[] {
+		const ret: T[] = [];
+
+		this.moveTo(at);
+
+		if (deleteCount > 0) {
+			ret.push(...this.slice(this.currentIndex, this.currentIndex + deleteCount));
+			this.zip(this.currentIndex - 1, this.currentIndex + deleteCount);
+		}
+		if (newValues && newValues.length > 0) {
+			const tmpLeft: T[] = this.slice(this.startIndex, this.currentIndex - 1),
+			tmpRight: T[] = this.slice(this.currentIndex, this.endIndex);
+
+			this.replace(this.startIndex, ...tmpLeft, ...newValues, ...tmpRight);
+		}
+
+		return ret;
 	}
 
 	replace(from: number, ...newValues: T[]): InfiniteTape<T> {
 		for (let i = from, j = 0; j < newValues.length; i++ , j++) {
-			this.itemAt(i, newValues[j]);
+			this.setValue(i, newValues[j]);
 		}
 		return this;
 	}
@@ -222,7 +235,7 @@ export class InfiniteTape<T> {
 	find(predicate: (v: T) => boolean): T {
 		return this.doWitoutMoving(() => {
 			const idx = this.findIndex(predicate);
-			return idx === null ? null : this.itemAt(idx);	
+			return idx === null ? null : this.getValue(idx);	
 		});
 	}
 
@@ -233,7 +246,7 @@ export class InfiniteTape<T> {
 			this.start();
 		}
 		for (let i = 0; numItems === null ? this.currentIndex < this.maxIndex : i < numItems; i++) {
-			this.itemAt(this.currentIndex, callback(this.itemAt(this.currentIndex), this.currentIndex));
+			this.setValue(this.currentIndex, callback(this.getValue(this.currentIndex), this.currentIndex));
 			this.next();
 		}
 		return null;
