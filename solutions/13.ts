@@ -55,11 +55,6 @@ const findCollision = (cart: Cart): Cart => {
 	return carts.filter(c => !c.isCrashed).find(c => !c.isSame(cart) && c.isSimilar(cart));
 };
 
-const paint = (): void => {
-
-};
-
-// Up, Right, Down, Left
 const transform = (cur: Direction, part: string): Direction => {
 	switch (cur) {
 		case Direction.Up: return part === '/' ? Direction.Right : Direction.Left; 
