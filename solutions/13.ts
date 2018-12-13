@@ -4,11 +4,21 @@ import uuid = require('uuid');
 
 const day = 13;
 
+enum TrackPart {
+	Slash = '/',
+	Backslash = '\\',
+	Intersection = '+',
+}
 enum Direction {
-	Up,
-	Right,
-	Down,
+	Up = '^',
+	Right = '>',
+	Down = 'v',
+	Left = '<',
+}
+enum Turn {
 	Left,
+	Straight,
+	Right
 }
 class Point {
 	x: number;
@@ -24,13 +34,11 @@ class Point {
 	}
 }
 
-const turns = ['left', 'straight', 'right'];
-
 class Cart  {
 	id: string;
 	position: Point;
 	direction: Direction;
-	currTurn = turns[0];
+	currTurn: Turn = Turn.Left;
 	isCrashed = false;
 
 	constructor(position: Point, direction: Direction) {
@@ -48,6 +56,7 @@ class Cart  {
 	}
 }
 
+const directions = [Direction.Up, Direction.Right, Direction.Down, Direction.Left].toStrings();
 let grid: string[][] = [];
 let carts: Cart[] = [];
 
@@ -57,33 +66,28 @@ const findCollision = (cart: Cart): Cart => {
 
 const transform = (cur: Direction, part: string): Direction => {
 	switch (cur) {
-		case Direction.Up: return part === '/' ? Direction.Right : Direction.Left; 
-		case Direction.Right: return part === '/' ? Direction.Up : Direction.Down;
-		case Direction.Down: return part === '/' ? Direction.Left : Direction.Right;
-		case Direction.Left: return part === '/' ? Direction.Down : Direction.Up;
+		case Direction.Up: return part === TrackPart.Slash ? Direction.Right : Direction.Left; 
+		case Direction.Right: return part === TrackPart.Slash ? Direction.Up : Direction.Down;
+		case Direction.Down: return part === TrackPart.Slash ? Direction.Left : Direction.Right;
+		case Direction.Left: return part === TrackPart.Slash ? Direction.Down : Direction.Up;
 	}
 }
-const doTurn= (cur: Direction, currTurn: string): Direction => {
+const doTurn = (cur: Direction, currTurn: Turn): Direction => {
 	switch (cur) {
-		case Direction.Up: return currTurn === 'left' ? Direction.Left : (currTurn === 'right' ? Direction.Right : cur);
-		case Direction.Right: return currTurn === 'left' ? Direction.Up : (currTurn === 'right' ? Direction.Down : cur);
-		case Direction.Down: return currTurn === 'left' ? Direction.Right : (currTurn === 'right' ? Direction.Left : cur);
-		case Direction.Left: return currTurn === 'left' ? Direction.Down : (currTurn === 'right' ? Direction.Up : cur);
+		case Direction.Up: return currTurn === Turn.Left ? Direction.Left : (currTurn === Turn.Right ? Direction.Right : cur);
+		case Direction.Right: return currTurn === Turn.Left ? Direction.Up : (currTurn === Turn.Right ? Direction.Down : cur);
+		case Direction.Down: return currTurn === Turn.Left ? Direction.Right : (currTurn === Turn.Right ? Direction.Left : cur);
+		case Direction.Left: return currTurn === Turn.Left ? Direction.Down : (currTurn === Turn.Right ? Direction.Up : cur);
+	}
+};
+
+const nextTurn = (currTurn: Turn): Turn => {
+	switch(currTurn) {
+		case Turn.Left: return Turn.Straight;
+		case Turn.Straight: return Turn.Right;
+		case Turn.Right: return Turn.Left;
 	}
 }
-
-const directions: {[id: string]: Direction} = {
-	'^': Direction.Up,
-	'>': Direction.Right,
-	'v': Direction.Down,
-	'<': Direction.Left
-};
-const directionsToTrackpart: {[id: string]: string} = {
-	'^': '|',
-	'>': '-',
-	'v': '|',
-	'<': '-'
-};
 
 const tick = () => {
 	carts = carts.sort((a, b) => a.position.y === b.position.y ? a.position.x - b.position.x : a.position.y - b.position.y);
@@ -97,11 +101,11 @@ const tick = () => {
 		const c = processCarts[i],
 			currPoint = grid[c.position.y][c.position.x];
 
-		if (currPoint === '\\' || currPoint === '/') {
+		if (currPoint === TrackPart.Backslash || currPoint === TrackPart.Slash) {
 			c.direction = transform(c.direction, currPoint);
-		} else if (currPoint === '+') {
+		} else if (currPoint === TrackPart.Intersection) {
 			c.direction = doTurn(c.direction, c.currTurn);
-			c.currTurn = turns[(turns.indexOf(c.currTurn) + 1) % turns.length];
+			c.currTurn = nextTurn(c.currTurn);
 		}
 		switch (c.direction) {
 			case Direction.Up: c.position.y--; break;
@@ -125,9 +129,8 @@ const getData = (data: string) => {
 	for (let y = 0; y < grid.length; y++) {
 		for (let x = 0; x < grid[y].length; x++) {
 			const cell = grid[y][x];
-			if (cell === '<' || cell === '>' || cell === '^' || cell === 'v') {
-				carts.push(new Cart(new Point(x, y), directions[cell]));
-				grid[y][x] = directionsToTrackpart[cell];
+			if (directions.includes(cell)) {
+				carts.push(new Cart(new Point(x, y), <Direction>cell));
 			}
 		}
 	}
@@ -138,7 +141,7 @@ const solve = () => {
 };
 
 // Scaffolding:
-loadData(13, (data: string) => {
+loadData(day, (data: string) => {
 	getData(data);
 	solve();
 });

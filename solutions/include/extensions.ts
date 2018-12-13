@@ -11,6 +11,7 @@ interface Array<T> {
 	sumBy(predicate: NumAction): number;
 	product(): number;
 	toNumbers(): number[];
+	toStrings(): string[];
 	removeFalsy(): any[];
 	min(): number;
 	max(): number;
@@ -50,6 +51,9 @@ Array.prototype.product = function() {
 
 Array.prototype.toNumbers = function() {
 	return this.map(Number);
+};
+Array.prototype.toStrings = function() {
+	return this.map(String);
 };
 
 Array.prototype.removeFalsy = function() {
