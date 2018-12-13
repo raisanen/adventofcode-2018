@@ -8,11 +8,22 @@ const powerLevel = (x: number, y: number, serial: number): number => {
 	return Math.floor((((rackId * y) + serial) * rackId) / 100) % 10 - 5;
 };
 
+/**
+ * calcSums & score thanks to https://www.geeksforgeeks.org/submatrix-sum-queries/
+ */ 
+
 const calcSums = (serial: number): void => {
+	range(1, 300).forEach(y => sums[1][y] = powerLevel(1, y, serial));
 	range(1, 300)
+		.forEach(y => range(2, 300)
+			.forEach(x => {
+				sums[x][y] = powerLevel(x, y, serial) + sums[x-1][y];
+			})
+		);
+	range(2, 300)
 		.forEach(y => range(1, 300)
 			.forEach(x => {
-				sums[x][y] = powerLevel(x, y, serial) + sums[x][y-1] + sums[x-1][y] - sums[x-1][y-1];
+				sums[x][y] += sums[x][y-1];
 			})
 		);
 };
@@ -20,7 +31,18 @@ const calcSums = (serial: number): void => {
 const score = (x: number, y: number, side: number): number => {
 	const x1 = x + side - 1,
 		y1 = y + side - 1;
-	return sums[x1][y1] - sums[x][y1] - sums[x1][y] + sums[x][y];
+	let res = sums[x1][y1];
+
+	if (x1 > 1) {
+		res -= sums[x-1][y1];
+	}
+	if (y1 > 1) {
+		res -= sums[x1][y-1];
+	}
+	if (x > 1 && y > 1) {
+		res += sums[x-1][y-1];
+	}
+	return res;
 };
 
 const part1 = () => {
