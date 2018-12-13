@@ -139,10 +139,7 @@ const getData = (data: string) => {
 };
 
 const solve = () => {
-	let isDone = false;
-	while (!isDone) {
-		isDone = tick();
-	}
+	while (!tick());
 };
 
 // Scaffolding:
