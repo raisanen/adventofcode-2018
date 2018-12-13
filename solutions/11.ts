@@ -1,5 +1,4 @@
 import { range } from './include/utils';
-import { flatten } from 'lodash';
 
 const sums = range(0, 300).map(() => range(0,300).map(() => 0));
 
