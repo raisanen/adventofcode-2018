@@ -60,38 +60,41 @@ const directions = [Direction.Up, Direction.Right, Direction.Down, Direction.Lef
 let grid: string[][] = [];
 let carts: Cart[] = [];
 
+const nonCrashed = (): Cart[] => carts.filter(c => !c.isCrashed);
+
 const findCollision = (cart: Cart): Cart => {
-	return carts.filter(c => !c.isCrashed).find(c => !c.isSame(cart) && c.isSimilar(cart));
+	return nonCrashed().find(c => !c.isSame(cart) && c.isSimilar(cart));
 };
 
 const transform = (cur: Direction, part: string): Direction => {
 	switch (cur) {
-		case Direction.Up: return part === TrackPart.Slash ? Direction.Right : Direction.Left; 
-		case Direction.Right: return part === TrackPart.Slash ? Direction.Up : Direction.Down;
-		case Direction.Down: return part === TrackPart.Slash ? Direction.Left : Direction.Right;
-		case Direction.Left: return part === TrackPart.Slash ? Direction.Down : Direction.Up;
+		case Direction.Up:    return part === TrackPart.Slash ? Direction.Right : Direction.Left; 
+		case Direction.Right: return part === TrackPart.Slash ? Direction.Up    : Direction.Down;
+		case Direction.Down:  return part === TrackPart.Slash ? Direction.Left  : Direction.Right;
+		case Direction.Left:  return part === TrackPart.Slash ? Direction.Down  : Direction.Up;
 	}
 }
 const doTurn = (cur: Direction, currTurn: Turn): Direction => {
 	switch (cur) {
-		case Direction.Up: return currTurn === Turn.Left ? Direction.Left : (currTurn === Turn.Right ? Direction.Right : cur);
-		case Direction.Right: return currTurn === Turn.Left ? Direction.Up : (currTurn === Turn.Right ? Direction.Down : cur);
-		case Direction.Down: return currTurn === Turn.Left ? Direction.Right : (currTurn === Turn.Right ? Direction.Left : cur);
-		case Direction.Left: return currTurn === Turn.Left ? Direction.Down : (currTurn === Turn.Right ? Direction.Up : cur);
+		case Direction.Up:    return currTurn === Turn.Left ? Direction.Left  : (currTurn === Turn.Right ? Direction.Right : cur);
+		case Direction.Right: return currTurn === Turn.Left ? Direction.Up    : (currTurn === Turn.Right ? Direction.Down  : cur);
+		case Direction.Down:  return currTurn === Turn.Left ? Direction.Right : (currTurn === Turn.Right ? Direction.Left  : cur);
+		case Direction.Left:  return currTurn === Turn.Left ? Direction.Down  : (currTurn === Turn.Right ? Direction.Up    : cur);
 	}
 };
 
 const nextTurn = (currTurn: Turn): Turn => {
 	switch(currTurn) {
-		case Turn.Left: return Turn.Straight;
+		case Turn.Left:     return Turn.Straight;
 		case Turn.Straight: return Turn.Right;
-		case Turn.Right: return Turn.Left;
+		case Turn.Right:    return Turn.Left;
 	}
-}
+};
 
 const tick = () => {
 	carts = carts.sort((a, b) => a.position.y === b.position.y ? a.position.x - b.position.x : a.position.y - b.position.y);
-	const processCarts = carts.filter(c => !c.isCrashed);
+
+	const processCarts = nonCrashed();
 	if (processCarts.length === 1) {
 		const lastCart = processCarts[0];
 		console.log('Part 2:', lastCart.position.x, lastCart.position.y);
