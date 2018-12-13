@@ -38,13 +38,21 @@ class Cart  {
 		this.position = position;
 		this.direction = direction;
 	}
+
+	isSame(b: Cart): boolean {
+		return this.id === b.id;
+	}
+
+	isSimilar(b: Cart): boolean {
+		return this.position.isSame(b.position);
+	}
 }
 
 let grid: string[][] = [];
 let carts: Cart[] = [];
 
 const findCollision = (cart: Cart): Cart => {
-	return carts.filter(c => !c.isCrashed).find(c => c.id !== cart.id && c.position.isSame(cart.position));
+	return carts.filter(c => !c.isCrashed).find(c => !c.isSame(cart) && c.isSimilar(cart));
 };
 
 const paint = (): void => {
@@ -136,8 +144,6 @@ const solve = () => {
 		isDone = tick();
 	}
 };
-const part2 = () => { };
-
 
 // Scaffolding:
 loadData(13, (data: string) => {
