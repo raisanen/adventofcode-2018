@@ -5,107 +5,100 @@ import uuid = require('uuid');
 const day = 13;
 
 enum Direction {
+	Up,
 	Right,
 	Down,
 	Left,
-	Up
 }
 class Point {
 	x: number;
 	y: number;
-	distance: number;
 
 	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
-		this.distance = Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
 	}
 
 	isSame(b: Point): boolean {
 		return this.x === b.x && this.y === b.y;
 	}
-
-	compare(b: Point): number {
-		return this.distance - b.distance;
-	}
 }
-class Identifiable {
+
+const turns = ['left', 'straight', 'right'];
+
+class Cart  {
 	id: string;
-	constructor() {
-		this.id = uuid.v4();
-	}
-}
-
-class Track extends Identifiable {
-	topLeft: Point;
-	topRight: Point;
-	bottomRight: Point;
-	bottomLeft: Point;
-
-	constructor() { super(); }
-}
-class Cart extends Identifiable {
 	position: Point;
-	trackId: string;
 	direction: Direction;
+	currTurn = turns[0];
+	isCrashed = false;
 
-	constructor(position: Point, trackId: string, direction: Direction) {
-		super();
+	constructor(position: Point, direction: Direction) {
+		this.id = uuid.v4();
 		this.position = position;
-		this.trackId = trackId;
 		this.direction = direction;
 	}
 }
 
-const tracks: Track[] = [];
-const carts: Cart[] = [];
+let grid: string[][] = [];
+let carts: Cart[] = [];
 
-const findCollision = (): Point => {
-	const sortedCarts = carts.sort((a, b) => a.position.compare(b.position));
-	for (let i = 0; i < sortedCarts.length - 1; i++) {
-		if (sortedCarts[i].position.isSame(sortedCarts[i + 1].position)) {
-			return sortedCarts[i].position;
-		}
-	}
-	return null;
+const findCollision = (cart: Cart): Cart => {
+	return carts.filter(c => !c.isCrashed).find(c => c.id !== cart.id && c.position.isSame(cart.position));
 };
 
 const paint = (): void => {
 
 };
 
-const tick = (): Point => {
-	const collision = findCollision();
-	if (collision) {
-		return collision;
+// Up, Right, Down, Left
+const transform = (cur: Direction, part: string): Direction => {
+	switch (cur) {
+		case Direction.Up: return part === '/' ? Direction.Right : Direction.Left; 
+		case Direction.Right: return part === '/' ? Direction.Up : Direction.Down;
+		case Direction.Down: return part === '/' ? Direction.Left : Direction.Right;
+		case Direction.Left: return part === '/' ? Direction.Down : Direction.Up;
 	}
-	// console.log('tick');
-	carts.forEach(c => {
-		const track = tracks.find(t => t.id === c.trackId);
-		if (c.position.isSame(track.topLeft)) {
-			if (c.direction === Direction.Up) {
-				c.direction = Direction.Right;
-			} else if (c.direction === Direction.Left) {
-				c.direction = Direction.Down;
-			}
-		} else if (c.position.isSame(track.topRight)) {
-			if (c.direction === Direction.Up) {
-				c.direction = Direction.Left;
-			} else if (c.direction === Direction.Right) {
-				c.direction = Direction.Down;
-			}
-		} else if (c.position.isSame(track.bottomRight)) {
-			if (c.direction === Direction.Down) {
-				c.direction = Direction.Left;
-			} else if (c.direction === Direction.Right) {
-				c.direction = Direction.Up;
-			}
-		} else if (c.position.isSame(track.bottomLeft)) {
-			if (c.direction === Direction.Down) {
-				c.direction = Direction.Right;
-			} else if (c.direction === Direction.Left) {
-				c.direction = Direction.Up;
-			}
+}
+const doTurn= (cur: Direction, currTurn: string): Direction => {
+	switch (cur) {
+		case Direction.Up: return currTurn === 'left' ? Direction.Left : (currTurn === 'right' ? Direction.Right : cur);
+		case Direction.Right: return currTurn === 'left' ? Direction.Up : (currTurn === 'right' ? Direction.Down : cur);
+		case Direction.Down: return currTurn === 'left' ? Direction.Right : (currTurn === 'right' ? Direction.Left : cur);
+		case Direction.Left: return currTurn === 'left' ? Direction.Down : (currTurn === 'right' ? Direction.Up : cur);
+	}
+}
+
+const directions: {[id: string]: Direction} = {
+	'^': Direction.Up,
+	'>': Direction.Right,
+	'v': Direction.Down,
+	'<': Direction.Left
+};
+const directionsToTrackpart: {[id: string]: string} = {
+	'^': '|',
+	'>': '-',
+	'v': '|',
+	'<': '-'
+};
+
+const tick = () => {
+	carts = carts.sort((a, b) => a.position.y === b.position.y ? a.position.x - b.position.x : a.position.y - b.position.y);
+	const processCarts = carts.filter(c => !c.isCrashed);
+	if (processCarts.length === 1) {
+		const lastCart = processCarts[0];
+		console.log('Part 2:', lastCart.position.x, lastCart.position.y);
+		return true;
+	}
+	for (let i = 0; i < processCarts.length; i++) {
+		const c = processCarts[i],
+			currPoint = grid[c.position.y][c.position.x];
+
+		if (currPoint === '\\' || currPoint === '/') {
+			c.direction = transform(c.direction, currPoint);
+		} else if (currPoint === '+') {
+			c.direction = doTurn(c.direction, c.currTurn);
+			c.currTurn = turns[(turns.indexOf(c.currTurn) + 1) % turns.length];
 		}
 		switch (c.direction) {
 			case Direction.Up: c.position.y--; break;
@@ -113,85 +106,41 @@ const tick = (): Point => {
 			case Direction.Down: c.position.y++; break;
 			case Direction.Left: c.position.x--; break;
 		}
-	});
-	return null;
-}
-
-const getData = (data: string) => {
-	const grid = data.splitLines().map(l => l.splitChars());
-	for (let y = 0; y < grid.length - 1; y++) {
-		const row = grid[y];
-		console.log('Row', y);
-		for (let x = 0; x < row.length - 1; x++) {
-			if (row[x] === '/' && (row[x + 1] === '-' || row[x + 1] === '+' || row[x + 1] === '>' || row[x + 1] === '<')) {
-				const topLeft = new Point(x, y); 
-				if (tracks.findIndex(t => t.topLeft.isSame(topLeft)) < 0) {
-					const newTrack = new Track();
-					let foundCart = false;
-					newTrack.topLeft =  topLeft;
-
-					while (row[++x] !== '\\') {
-						if (row[x] === '<' || row[x] === '>') {
-							foundCart = true;
-							carts.push(new Cart(new Point(x, y), newTrack.id, row[x] === '<' ? Direction.Left : Direction.Right));
-						}
-					}
-					newTrack.topRight = new Point(x, y);
-
-					let tempY = y;
-					while (grid[++tempY][x] !== '/') {
-						const cell = grid[tempY][x];
-						if (cell === '^' || cell === 'v') {
-							foundCart = true;
-							carts.push(new Cart(new Point(x, tempY), newTrack.id, cell === 'v' ? Direction.Down : Direction.Up));
-						}
-					}
-
-					newTrack.bottomLeft = new Point(x, y);
-
-					let tempX = x;
-					while (grid[tempY][--tempX] !== '\\') {
-						const cell = grid[tempY][tempX];
-						if (cell === '<' || cell === '>') {
-							foundCart = true;
-							carts.push(new Cart(new Point(tempX, tempY), newTrack.id, cell === '<' ? Direction.Left : Direction.Right));
-						}
-					}
-
-					newTrack.bottomRight = new Point(tempX, tempY);
-
-					while (grid[--tempY][tempX] !== '/') {
-						const cell = grid[tempY][tempX];
-						if (cell === '^' || cell === 'v') {
-							foundCart = true;
-							carts.push(new Cart(new Point(tempX, tempY), newTrack.id, cell === 'v' ? Direction.Down : Direction.Up));
-						}
-					}
-					if (foundCart) {
-						tracks.push(newTrack);
-						console.log('Found track', tracks.length);	
-					}
-				}
+		const collidesWith = findCollision(c);
+		if (collidesWith) {
+			c.isCrashed = collidesWith.isCrashed = true;
+			if (processCarts.length === carts.length) {
+				console.log('Part 1:', c.position.x, c.position.y);
 			}
 		}
 	}
-	console.log(tracks.length);
-	console.log(carts.length);
+	return false;
+}
+
+const getData = (data: string) => {
+	grid = data.splitLines().map(l => l.splitChars());
+	for (let y = 0; y < grid.length; y++) {
+		for (let x = 0; x < grid[y].length; x++) {
+			const cell = grid[y][x];
+			if (cell === '<' || cell === '>' || cell === '^' || cell === 'v') {
+				carts.push(new Cart(new Point(x, y), directions[cell]));
+				grid[y][x] = directionsToTrackpart[cell];
+			}
+		}
+	}
 };
 
-const part1 = () => {
-	let firstCollision: Point = null;
-	while (firstCollision === null) {
-		firstCollision = tick();
+const solve = () => {
+	let isDone = false;
+	while (!isDone) {
+		isDone = tick();
 	}
-	return firstCollision;
 };
 const part2 = () => { };
 
 
 // Scaffolding:
-loadData(day, (data: string) => {
+loadData(13, (data: string) => {
 	getData(data);
-	console.log('Part1: ', part1());
-	// console.log('Part2: ', part2());
+	solve();
 });
