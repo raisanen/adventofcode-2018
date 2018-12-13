@@ -76,10 +76,22 @@ const transform = (cur: Direction, part: string): Direction => {
 }
 const doTurn = (cur: Direction, currTurn: Turn): Direction => {
 	switch (cur) {
-		case Direction.Up:    return currTurn === Turn.Left ? Direction.Left  : (currTurn === Turn.Right ? Direction.Right : cur);
-		case Direction.Right: return currTurn === Turn.Left ? Direction.Up    : (currTurn === Turn.Right ? Direction.Down  : cur);
-		case Direction.Down:  return currTurn === Turn.Left ? Direction.Right : (currTurn === Turn.Right ? Direction.Left  : cur);
-		case Direction.Left:  return currTurn === Turn.Left ? Direction.Down  : (currTurn === Turn.Right ? Direction.Up    : cur);
+		case Direction.Up:
+			return currTurn === Turn.Left
+				? Direction.Left
+				: (currTurn === Turn.Right ? Direction.Right : cur);
+		case Direction.Right:
+			return currTurn === Turn.Left
+				? Direction.Up
+				: (currTurn === Turn.Right ? Direction.Down : cur);
+		case Direction.Down:
+			return currTurn === Turn.Left
+				? Direction.Right
+				: (currTurn === Turn.Right ? Direction.Left : cur);
+		case Direction.Left:
+			return currTurn === Turn.Left
+				? Direction.Down
+				: (currTurn === Turn.Right ? Direction.Up : cur);
 	}
 };
 
