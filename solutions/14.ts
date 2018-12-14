@@ -24,15 +24,12 @@ const part1 = (times: number): string => {
 	return recipies.slice(times, times + 10).join('');
 };
 const part2 = (wantString: string): number => {
-	const stringLen = wantString.length,
-		lastNum = wantString.splitChars().toNumbers().last();
-	let gotString = '';
+	const stringLen = wantString.length;
 	reset();
 	while (true) {
 		tick();
 		const numRecipies = recipies.length;
-		gotString = recipies[numRecipies-1] === lastNum && numRecipies >= stringLen ? recipies.slice(-stringLen).join('') : '';
-
+		const gotString = numRecipies >= stringLen ? recipies.slice(-stringLen).join('') : '';
 		if (gotString === wantString) {
 			return numRecipies - stringLen;
 		}
