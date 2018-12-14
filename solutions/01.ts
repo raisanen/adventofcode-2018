@@ -11,14 +11,14 @@ const part1 = (data: number[]): number => {
 const part2 = (data: number[]): number => {
 	let current = 0,
 		seen: {[key: number]: boolean} = {};
-	while(true) {
+	while (true) {
 		for (let i = 0; i < data.length; i++) {
 			current += data[i];
 			if (seen[current]) {
 				return current;
 			}
 			seen[current] = true;
-		}	
+		}
 	}
 };
 
