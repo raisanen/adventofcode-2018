@@ -16,6 +16,12 @@ export const repeat = (value: any, times: number): any[] => {
 	return range(1, times).map(() => value);
 };
 
+export const repeatFunction = (func: () => void, times: number): void => {
+	for (let i = 0; i < times; i++) {
+		func();
+	}
+};
+
 export const loadData = (day: number, callback: Function): void => {
 	const filename = `solutions/data/${day}.dat`;
 	fs.readFile(filename, (error, data) => {
